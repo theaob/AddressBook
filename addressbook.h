@@ -20,6 +20,9 @@ private:
     QPushButton *addButton;
     QPushButton *submitButton;
 
+    QPushButton *nextButton;
+    QPushButton *previousButton;
+
     QMap<QString, QString> contacts;
     QString oldname;
     QString oldaddress;
@@ -28,6 +31,9 @@ public slots:
     void addContact();
     void submitContact();
     void cancel();
+
+    void next();
+    void previous();
 
 
     

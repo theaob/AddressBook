@@ -31,6 +31,16 @@ AddressBook::AddressBook(QWidget *parent) :
 
     buttonLayout1->addStretch();
 
+    previousButton = new QPushButton("Previous");
+
+    nextButton = new QPushButton("Next");
+
+    connect(nextButton, SIGNAL(clicked()),this,SLOT(next()));
+    connect(previousButton, SIGNAL(clicked()),this,SLOT(previous()));
+
+    QHBoxLayout *buttonLayout2 = new QHBoxLayout;
+    buttonLayout2->addWidget(previousButton);
+    buttonLayout2->addWidget(nextButton);
 
     QGridLayout *mainLayout = new QGridLayout;
     mainLayout->addWidget(nameLabel,0,0);
@@ -40,6 +50,7 @@ AddressBook::AddressBook(QWidget *parent) :
     mainLayout->addWidget(addressText,1,1);
 
     mainLayout->addLayout(buttonLayout1,1,2);
+    mainLayout->addLayout(buttonLayout2,2,0,1,3);
 
     setLayout(mainLayout);
     setWindowTitle("AddressBook");
@@ -60,6 +71,9 @@ void AddressBook::addContact()
     addButton->setEnabled(false);
     cancelButton->show();
     submitButton->show();
+
+    nextButton->setEnabled(false);
+    previousButton->setEnabled(false);
 }
 
 void AddressBook::cancel()
@@ -73,6 +87,9 @@ void AddressBook::cancel()
     addButton->setEnabled(true);
     cancelButton->hide();
     submitButton->hide();
+
+    nextButton->setEnabled(true);
+    previousButton->setEnabled(true);
 }
 
 void AddressBook::submitContact()
@@ -109,4 +126,49 @@ void AddressBook::submitContact()
     addButton->setEnabled(true);
     submitButton->hide();
     cancelButton->hide();
+
+    nextButton->setEnabled(true);
+    previousButton->setEnabled(true);
+}
+
+void AddressBook::previous()
+{
+    QString name = nameLine->text();
+    QMap<QString,QString>::iterator i = contacts.find(name);
+
+    if(i == contacts.end())
+    {
+        nameLine->clear();
+        addressText->clear();
+        return;
+    }
+
+    if(i == contacts.begin())
+    {
+        i = contacts.end();
+    }
+
+    i--;
+
+    nameLine->setText(i.key());
+    addressText->setText(i.value());
+}
+
+void AddressBook::next()
+{
+    QString name = nameLine->text();
+    QMap<QString,QString>::iterator i = contacts.find(name);
+
+    if(i != contacts.end())
+    {
+        i++;
+    }
+
+    if(i == contacts.end())
+    {
+        i = contacts.begin();
+    }
+
+    nameLine->setText(i.key());
+    addressText->setText(i.value());
 }
