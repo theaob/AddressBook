@@ -64,10 +64,49 @@ void AddressBook::addContact()
 
 void AddressBook::cancel()
 {
+    nameLine->setText(oldname);
+    nameLine->setReadOnly(true);
 
+    addressText->setText(oldaddress);
+    addressText->setReadOnly(true);
+
+    addButton->setEnabled(true);
+    cancelButton->hide();
+    submitButton->hide();
 }
 
 void AddressBook::submitContact()
 {
+    QString name = nameLine->text();
+    QString address = addressText->toPlainText();
 
+    if(name.isEmpty() || address.isEmpty())
+    {
+        QMessageBox::information(this, "Error!", "You cannot save a contact without a name or an address!");
+        return;
+    }
+
+    if(contacts.contains(name))
+    {
+        QMessageBox::information(this,"Error!","There is a address saved for\"" + name + "\"");
+        return;
+    }
+    else
+    {
+        contacts.insert(name,address);
+        QMessageBox::information(this, "Success", "Address saved for \"" + name + "\"" );
+    }
+
+    if(contacts.isEmpty())
+    {
+        nameLine->clear();
+        addressText->clear();
+    }
+
+    nameLine->setReadOnly(true);
+    addressText->setReadOnly(true);
+
+    addButton->setEnabled(true);
+    submitButton->hide();
+    cancelButton->hide();
 }
