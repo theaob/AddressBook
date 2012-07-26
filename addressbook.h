@@ -2,6 +2,7 @@
 #define ADDRESSBOOK_H
 
 #include <QWidget>
+#include <QMap>
 
 #include <QtGui>
 
@@ -14,6 +15,21 @@ public:
 private:
     QLineEdit *nameLine;
     QTextEdit *addressText;
+
+    QPushButton *cancelButton;
+    QPushButton *addButton;
+    QPushButton *submitButton;
+
+    QMap<QString, QString> contacts;
+    QString oldname;
+    QString oldaddress;
+
+public slots:
+    void addContact();
+    void submitContact();
+    void cancel();
+
+
     
 };
 
