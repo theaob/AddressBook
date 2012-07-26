@@ -23,9 +23,18 @@ private:
     QPushButton *nextButton;
     QPushButton *previousButton;
 
+    QPushButton *editButton;
+    QPushButton *deleteButton;
+
     QMap<QString, QString> contacts;
     QString oldname;
     QString oldaddress;
+
+    enum Mode{ NavigationMode, AddingMode, EditingMode };
+
+    Mode currentMode;
+
+    void updateInterface(Mode);
 
 public slots:
     void addContact();
@@ -34,6 +43,9 @@ public slots:
 
     void next();
     void previous();
+
+    void editContact();
+    void removeContact();
 
 
     

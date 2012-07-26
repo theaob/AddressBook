@@ -2,6 +2,9 @@
 
 #include "addressbook.h"
 
+
+//http://doc-snapshot.qt-project.org/4.8/tutorials-addressbook-part4.html
+
 AddressBook::AddressBook(QWidget *parent) :
     QWidget(parent)
 {
@@ -20,14 +23,23 @@ AddressBook::AddressBook(QWidget *parent) :
     cancelButton = new QPushButton("Cancel");
     cancelButton->hide();
 
+    deleteButton = new QPushButton("Remove");
+    deleteButton->setEnabled(false);
+    editButton = new QPushButton("Edit");
+    editButton->setEnabled(false);
+
     connect(addButton, SIGNAL(clicked()), this, SLOT(addContact()));
     connect(submitButton, SIGNAL(clicked()), this, SLOT(submitContact()));
     connect(cancelButton, SIGNAL(clicked()),this,SLOT(cancel()));
+    connect(deleteButton, SIGNAL(clicked()),this, SLOT(removeContact()));
+    connect(editButton, SIGNAL(clicked()),this,SLOT(editContact()));
 
     QVBoxLayout *buttonLayout1 = new QVBoxLayout;
     buttonLayout1->addWidget(addButton);
     buttonLayout1->addWidget(submitButton);
     buttonLayout1->addWidget(cancelButton);
+    buttonLayout1->addWidget(deleteButton);
+    buttonLayout1->addWidget(editButton);
 
     buttonLayout1->addStretch();
 
@@ -127,6 +139,7 @@ void AddressBook::submitContact()
     submitButton->hide();
     cancelButton->hide();
 
+    deleteButton->setEnabled(true);
     nextButton->setEnabled(true);
     previousButton->setEnabled(true);
 }
@@ -171,4 +184,36 @@ void AddressBook::next()
 
     nameLine->setText(i.key());
     addressText->setText(i.value());
+}
+
+void AddressBook::removeContact()
+{
+    QString name = nameLine->text();
+    if(contacts.contains(name))
+    {
+        int button = QMessageBox::question(this, "Are you sure?", "Are you sure that you want to delete information of "+name,QMessageBox::Yes|QMessageBox::No);
+        if(button == QMessageBox::Yes)
+        {
+            previous();
+            contacts.remove(name);
+        }
+    }
+    else
+    {
+        QMessageBox::information(this,"Error","Couldn't find "+name+" on saved addresses!");
+        return;
+    }
+}
+
+void AddressBook::editContact()
+{
+    oldname = nameLine->text();
+    oldaddress = addressText->toPlainText();
+
+    updateInterface(EditingMode);
+}
+
+void AddressBook::updateInterface(Mode mode)
+{
+
 }
