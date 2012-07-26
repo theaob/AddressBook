@@ -3,15 +3,17 @@
 
 #include <QWidget>
 
+#include <QtGui>
+
 class AddressBook : public QWidget
 {
     Q_OBJECT
 public:
     explicit AddressBook(QWidget *parent = 0);
-    
-signals:
-    
-public slots:
+
+private:
+    QLineEdit *nameLine;
+    QTextEdit *addressText;
     
 };
 
