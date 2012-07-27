@@ -29,12 +29,28 @@ AddressBook::AddressBook(QWidget *parent) :
     findButton = new QPushButton("Find");
     findButton->setEnabled(false);
 
+    loadButton = new QPushButton("Load");
+    loadButton->setEnabled(true);
+    loadButton->setToolTip("Load previously saved contact book");
+
+    saveButton = new QPushButton("Save");
+    saveButton->setEnabled(true);
+    saveButton->setToolTip("Save this contact book");
+
+    exitButton = new QPushButton("Exit");
+    exitButton->setEnabled(true);
+    exitButton->setToolTip("Exit application");
+
     connect(addButton, SIGNAL(clicked()), this, SLOT(addContact()));
     connect(submitButton, SIGNAL(clicked()), this, SLOT(submitContact()));
     connect(cancelButton, SIGNAL(clicked()),this,SLOT(cancel()));
     connect(deleteButton, SIGNAL(clicked()),this, SLOT(removeContact()));
     connect(editButton, SIGNAL(clicked()),this,SLOT(editContact()));
     connect(findButton, SIGNAL(clicked()),this,SLOT(findContact()));
+
+    connect(exitButton, SIGNAL(clicked()),this,SLOT(exitApplication()));
+    connect(saveButton,SIGNAL(clicked()),this,SLOT(saveContacts()));
+    connect(loadButton,SIGNAL(clicked()),this,SLOT(loadContacts()));
 
     QVBoxLayout *buttonLayout1 = new QVBoxLayout;
     buttonLayout1->addWidget(addButton);
@@ -43,6 +59,9 @@ AddressBook::AddressBook(QWidget *parent) :
     buttonLayout1->addWidget(deleteButton);
     buttonLayout1->addWidget(editButton);
     buttonLayout1->addWidget(findButton);
+    buttonLayout1->addWidget(saveButton);
+    buttonLayout1->addWidget(loadButton);
+    buttonLayout1->addWidget(exitButton);
 
     buttonLayout1->addStretch();
 
@@ -241,6 +260,9 @@ void AddressBook::updateInterface(Mode mode)
 
             findButton->setEnabled(false);
 
+            saveButton->hide();
+            loadButton->hide();
+
             nextButton->hide();
             previousButton->hide();
             break;
@@ -257,6 +279,9 @@ void AddressBook::updateInterface(Mode mode)
             editButton->setEnabled(true);
 
             findButton->setEnabled(true);
+
+            saveButton->show();
+            loadButton->show();
 
             nextButton->show();
             previousButton->show();
@@ -286,4 +311,101 @@ void AddressBook::findContact()
 
     updateInterface(NavigationMode);
 
+}
+
+void AddressBook::exitApplication()
+{
+    exit(1);
+}
+
+void AddressBook::saveContacts()
+{
+    if(contacts.isEmpty())
+    {
+        QMessageBox::information(this,"Error!","You have no contacts in this book!");
+        return;
+    }
+
+    QString fileName = QFileDialog::getSaveFileName(this,"Save Contacts", "", "Address Book (*.acb);;All Files (*)");
+
+    if(fileName.isEmpty())
+    {
+        return;
+    }
+
+
+    QFile file(fileName);
+
+    if(!file.open(QIODevice::WriteOnly))
+    {
+        QMessageBox::information(this, "Error", "Couldn't open file. " + file.errorString());
+        return;
+    }
+    else
+    {
+        QDataStream out(&file);
+        out.setVersion(QDataStream::Qt_4_8);
+        out << contacts;
+
+        QMessageBox::information(this, "Success", "Saved contacts!");
+        //file.close();
+    }
+
+}
+
+void AddressBook::loadContacts()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Load Contacts", "", "Address Book (*.acb);;All Files (*)");
+
+    if(fileName.isEmpty())
+    {
+        return;
+    }
+
+    QFile file(fileName);
+
+    if(!file.open(QIODevice::ReadOnly))
+    {
+        QMessageBox::information(this, "Error", "Couldn't open file " + file.errorString() );
+        return;
+    }
+    else
+    {
+        if(!contacts.isEmpty())
+        {
+            if(QMessageBox::question(this,"Are you sure?", "Do you want to load over the contacts?", QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes)
+            {
+                QDataStream in(&file);
+                in.setVersion(QDataStream::Qt_4_8);
+                contacts.empty();
+                in >> contacts;
+                //file.close();
+                if(!contacts.isEmpty())
+                {
+                    QMap<QString,QString>::iterator i = contacts.begin();
+                    nameLine->setText(i.key());
+                    addressText->setText(i.value());
+                }
+            }
+            else
+            {
+                return;
+            }
+        }
+        else
+        {
+            QDataStream in(&file);
+            in.setVersion(QDataStream::Qt_4_8);
+            contacts.empty();
+            in >> contacts;
+            //file.close();
+            if(!contacts.isEmpty())
+            {
+                QMap<QString,QString>::iterator i = contacts.begin();
+                nameLine->setText(i.key());
+                addressText->setText(i.value());
+            }
+        }
+
+    }
 }

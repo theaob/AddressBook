@@ -30,6 +30,11 @@ private:
 
     QPushButton *findButton;
 
+    QPushButton *saveButton;
+    QPushButton *loadButton;
+
+    QPushButton *exitButton;
+
     QMap<QString, QString> contacts;
     QString oldname;
     QString oldaddress;
@@ -55,6 +60,10 @@ public slots:
 
     void findContact();
     
+    void saveContacts();
+    void loadContacts();
+
+    void exitApplication();
 };
 
 #endif // ADDRESSBOOK_H
