@@ -419,5 +419,79 @@ void AddressBook::loadContacts()
 
 void AddressBook::exportAsVCard()
 {
+    if(nameLine->text().isEmpty())
+    {
+        return;
+    }
 
+    QString filter = "vCard Files (*.vcf);;All Files(*)";
+    QString selectedFilter;
+
+    QString fileName = QFileDialog::getSaveFileName(this, "Export Contact","", filter, &selectedFilter);
+
+    if(fileName.isEmpty())
+    {
+        return;
+    }
+
+    if(selectedFilter.contains("vCard"))
+    {
+        fileName = fileName + ".vcf";
+    }
+
+    QMessageBox::information(this,"af",fileName);
+
+    QString name = nameLine->text();
+    QString address = addressText->toPlainText();
+
+    QString firstName;
+    QString lastName;
+    QStringList nameList;
+
+
+    int index = name.indexOf(" ");
+
+    if(index == -1)
+    {
+        firstName = name;
+        lastName = "";
+    }
+    else
+    {
+        nameList = name.split(QRegExp("\\s+"), QString::SkipEmptyParts);
+        firstName = nameList.first();
+        lastName = nameList.last();
+    }
+
+    QFile file(fileName);
+
+    if(!file.open(QIODevice::WriteOnly))
+    {
+        QMessageBox::information(this, "Error!", "Could not open file!");
+        return;
+    }
+
+    QTextStream out(&file);
+
+    out << "BEGIN:VCARD" << "\n";
+    out << "VERSION:2.1" << "\n";
+    out << "N:" << lastName << "," << firstName << "\n";
+
+    if(!nameList.isEmpty())
+    {
+        out << "FN:" << nameList.join(" ") << "\n";
+    }
+    else
+    {
+        out << "FN:" << firstName << "\n";
+    }
+
+    address.replace(";", "\\;", Qt::CaseInsensitive);
+    address.replace("\n", ";", Qt::CaseInsensitive);
+    address.replace(",", " ", Qt::CaseInsensitive);
+
+    out << "ADR;HOME:;" << address << "\n";
+    out << "END:VCARD" << "\n";
+
+    QMessageBox::information(this, "Success", "Export Successful");
 }
