@@ -33,6 +33,8 @@ private:
     QPushButton *saveButton;
     QPushButton *loadButton;
 
+    QPushButton *exportButton;
+
     QPushButton *exitButton;
 
     QMap<QString, QString> contacts;
@@ -62,6 +64,8 @@ public slots:
     
     void saveContacts();
     void loadContacts();
+
+    void exportAsVCard();
 
     void exitApplication();
 };
