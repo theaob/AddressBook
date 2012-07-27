@@ -26,6 +26,8 @@ private:
     QPushButton *editButton;
     QPushButton *deleteButton;
 
+    QPushButton *findButton;
+
     QMap<QString, QString> contacts;
     QString oldname;
     QString oldaddress;

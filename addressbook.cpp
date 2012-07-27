@@ -2,9 +2,6 @@
 
 #include "addressbook.h"
 
-
-//
-
 AddressBook::AddressBook(QWidget *parent) :
     QWidget(parent)
 {
@@ -28,6 +25,8 @@ AddressBook::AddressBook(QWidget *parent) :
     editButton = new QPushButton("Edit");
     editButton->setEnabled(false);
 
+    findButton = new QPushButton("Find");
+
     connect(addButton, SIGNAL(clicked()), this, SLOT(addContact()));
     connect(submitButton, SIGNAL(clicked()), this, SLOT(submitContact()));
     connect(cancelButton, SIGNAL(clicked()),this,SLOT(cancel()));
@@ -40,6 +39,7 @@ AddressBook::AddressBook(QWidget *parent) :
     buttonLayout1->addWidget(cancelButton);
     buttonLayout1->addWidget(deleteButton);
     buttonLayout1->addWidget(editButton);
+    buttonLayout1->addWidget(findButton);
 
     buttonLayout1->addStretch();
 
