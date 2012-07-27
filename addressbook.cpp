@@ -1,6 +1,7 @@
 #include <QtGui>
 
 #include "addressbook.h"
+#include "finddialog.h"
 
 AddressBook::AddressBook(QWidget *parent) :
     QWidget(parent)
@@ -26,12 +27,14 @@ AddressBook::AddressBook(QWidget *parent) :
     editButton->setEnabled(false);
 
     findButton = new QPushButton("Find");
+    findButton->setEnabled(false);
 
     connect(addButton, SIGNAL(clicked()), this, SLOT(addContact()));
     connect(submitButton, SIGNAL(clicked()), this, SLOT(submitContact()));
     connect(cancelButton, SIGNAL(clicked()),this,SLOT(cancel()));
     connect(deleteButton, SIGNAL(clicked()),this, SLOT(removeContact()));
     connect(editButton, SIGNAL(clicked()),this,SLOT(editContact()));
+    connect(findButton, SIGNAL(clicked()),this,SLOT(findContact()));
 
     QVBoxLayout *buttonLayout1 = new QVBoxLayout;
     buttonLayout1->addWidget(addButton);
@@ -66,6 +69,8 @@ AddressBook::AddressBook(QWidget *parent) :
 
     setLayout(mainLayout);
     setWindowTitle("AddressBook");
+
+    dialog = new FindDialog;
 }
 
 void AddressBook::addContact()
@@ -234,8 +239,10 @@ void AddressBook::updateInterface(Mode mode)
             cancelButton->show();
             submitButton->show();
 
-            nextButton->setEnabled(false);
-            previousButton->setEnabled(false);
+            findButton->setEnabled(false);
+
+            nextButton->hide();
+            previousButton->hide();
             break;
 
         case NavigationMode:
@@ -249,9 +256,34 @@ void AddressBook::updateInterface(Mode mode)
             deleteButton->setEnabled(true);
             editButton->setEnabled(true);
 
-            nextButton->setEnabled(true);
-            previousButton->setEnabled(true);
+            findButton->setEnabled(true);
+
+            nextButton->show();
+            previousButton->show();
             break;
     }
+
+}
+
+void AddressBook::findContact()
+{
+    dialog->show();
+
+    if(dialog->exec() == QDialog::Accepted)
+    {
+        QString contactName = dialog->getFindText();
+        if(contacts.contains(contactName))
+        {
+            nameLine->setText(contactName);
+            addressText->setText(contacts.value(contactName));
+        }
+        else
+        {
+            QMessageBox::information(this,"Error!","Couldn't find " + contactName + " in contacts!");
+            return;
+        }
+    }
+
+    updateInterface(NavigationMode);
 
 }

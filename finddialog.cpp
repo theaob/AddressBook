@@ -1,8 +1,6 @@
-#include <QtGui>
-
 #include "finddialog.h"
 
-
+#include <QtGui>
 
 FindDialog::FindDialog(QWidget *parent) :
     QDialog(parent)
@@ -22,11 +20,32 @@ FindDialog::FindDialog(QWidget *parent) :
     setWindowTitle("Find Contact");
 
 
-    connect(findButton(),SIGNAL());
+    connect(findButton, SIGNAL(clicked()),this, SLOT(findClicked()));
+    connect(findButton, SIGNAL(clicked()),this, SLOT(accept()));
 
 }
 
 QString FindDialog::getFindText()
 {
+    return findText;
+}
+
+void FindDialog::findClicked()
+{
+    QString text = lineEdit->text();
+
+    if(text.isEmpty())
+    {
+        hide();
+        return;
+    }
+    else
+    {
+        findText = text;
+        lineEdit->clear();
+        hide();
+        return;
+    }
+
 
 }

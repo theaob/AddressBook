@@ -6,6 +6,8 @@
 
 #include <QtGui>
 
+#include "finddialog.h"
+
 class AddressBook : public QWidget
 {
     Q_OBJECT
@@ -32,6 +34,8 @@ private:
     QString oldname;
     QString oldaddress;
 
+    FindDialog *dialog;
+
     enum Mode{ NavigationMode, AddingMode, EditingMode };
 
     Mode currentMode;
@@ -49,7 +53,7 @@ public slots:
     void editContact();
     void removeContact();
 
-
+    void findContact();
     
 };
 
