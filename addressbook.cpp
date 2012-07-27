@@ -3,7 +3,7 @@
 #include "addressbook.h"
 
 
-//http://doc-snapshot.qt-project.org/4.8/tutorials-addressbook-part4.html
+//
 
 AddressBook::AddressBook(QWidget *parent) :
     QWidget(parent)
@@ -76,32 +76,16 @@ void AddressBook::addContact()
     nameLine->clear();
     addressText->clear();
 
-    nameLine->setReadOnly(false);
-    nameLine->setFocus(Qt::OtherFocusReason);
-    addressText->setReadOnly(false);
+    updateInterface(AddingMode);
 
-    addButton->setEnabled(false);
-    cancelButton->show();
-    submitButton->show();
-
-    nextButton->setEnabled(false);
-    previousButton->setEnabled(false);
 }
 
 void AddressBook::cancel()
 {
     nameLine->setText(oldname);
-    nameLine->setReadOnly(true);
-
     addressText->setText(oldaddress);
-    addressText->setReadOnly(true);
 
-    addButton->setEnabled(true);
-    cancelButton->hide();
-    submitButton->hide();
-
-    nextButton->setEnabled(true);
-    previousButton->setEnabled(true);
+    updateInterface(NavigationMode);
 }
 
 void AddressBook::submitContact()
@@ -109,43 +93,59 @@ void AddressBook::submitContact()
     QString name = nameLine->text();
     QString address = addressText->toPlainText();
 
-    if(name.isEmpty() || address.isEmpty())
+    if(currentMode == AddingMode){
+        if(name.isEmpty() || address.isEmpty())
+        {
+            QMessageBox::information(this, "Error!", "You cannot save a contact without a name or an address!");
+            return;
+        }
+
+        if(contacts.contains(name))
+        {
+            QMessageBox::information(this,"Error!","There is a address saved for\"" + name + "\"");
+            return;
+        }
+        else
+        {
+            contacts.insert(name,address);
+            QMessageBox::information(this, "Success", "Address saved for \"" + name + "\"" );
+        }
+    }
+    else if(currentMode == EditingMode)
     {
-        QMessageBox::information(this, "Error!", "You cannot save a contact without a name or an address!");
-        return;
+        if(name !=  oldname)
+        {
+            if(!contacts.contains(name))
+            {
+                QMessageBox::information(this, "Success", "Contact information for " + name + " added!");
+                contacts.remove(oldname);
+                contacts.insert(name,address);
+            }
+            else
+            {
+                QMessageBox::information(this, "Error!", "There is already a contact for " + name);
+                return;
+            }
+        }
+        else if(oldaddress != address)
+        {
+            QMessageBox::information(this, "Success", "Address information of " + name + " is updated!");
+            contacts[name] = address;
+        }
     }
 
-    if(contacts.contains(name))
-    {
-        QMessageBox::information(this,"Error!","There is a address saved for\"" + name + "\"");
-        return;
-    }
-    else
-    {
-        contacts.insert(name,address);
-        QMessageBox::information(this, "Success", "Address saved for \"" + name + "\"" );
-    }
-
-    if(contacts.isEmpty())
-    {
-        nameLine->clear();
-        addressText->clear();
-    }
-
-    nameLine->setReadOnly(true);
-    addressText->setReadOnly(true);
-
-    addButton->setEnabled(true);
-    submitButton->hide();
-    cancelButton->hide();
-
-    deleteButton->setEnabled(true);
-    nextButton->setEnabled(true);
-    previousButton->setEnabled(true);
+    updateInterface(NavigationMode);
 }
 
 void AddressBook::previous()
 {
+    if(contacts.empty())
+    {
+        nameLine->setText("");
+        addressText->setText("");
+        return;
+    }
+
     QString name = nameLine->text();
     QMap<QString,QString>::iterator i = contacts.find(name);
 
@@ -169,6 +169,11 @@ void AddressBook::previous()
 
 void AddressBook::next()
 {
+    if(contacts.empty())
+    {
+        return;
+    }
+
     QString name = nameLine->text();
     QMap<QString,QString>::iterator i = contacts.find(name);
 
@@ -194,8 +199,8 @@ void AddressBook::removeContact()
         int button = QMessageBox::question(this, "Are you sure?", "Are you sure that you want to delete information of "+name,QMessageBox::Yes|QMessageBox::No);
         if(button == QMessageBox::Yes)
         {
-            previous();
             contacts.remove(name);
+            previous();
         }
     }
     else
@@ -215,5 +220,38 @@ void AddressBook::editContact()
 
 void AddressBook::updateInterface(Mode mode)
 {
+    currentMode = mode;
+
+    switch(currentMode)
+    {
+        case AddingMode:
+        case EditingMode:
+            nameLine->setReadOnly(false);
+            nameLine->setFocus(Qt::OtherFocusReason);
+            addressText->setReadOnly(false);
+
+            addButton->setEnabled(false);
+            cancelButton->show();
+            submitButton->show();
+
+            nextButton->setEnabled(false);
+            previousButton->setEnabled(false);
+            break;
+
+        case NavigationMode:
+            nameLine->setReadOnly(true);
+            addressText->setReadOnly(true);
+
+            addButton->setEnabled(true);
+            cancelButton->hide();
+            submitButton->hide();
+
+            deleteButton->setEnabled(true);
+            editButton->setEnabled(true);
+
+            nextButton->setEnabled(true);
+            previousButton->setEnabled(true);
+            break;
+    }
 
 }
